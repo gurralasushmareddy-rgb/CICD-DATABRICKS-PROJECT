@@ -1,0 +1,55 @@
+name: Run PySpark Job on Databricks
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose environment (dev or prod)"
+        required: true
+        default: "dev"
+
+jobs:
+  databricks-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # 3. Install Databricks CLI
+      - name: Install Databricks CLI
+        run: |
+          pip install databricks-cli
+
+      # 4. Configure Databricks CLI
+      - name: Configure Databricks CLI
+        run: |
+          databricks configure --token <<EOF
+          ${{ secrets.DATABRICKS_HOST }}
+          ${{ secrets.DATABRICKS_TOKEN }}
+          REPO_PATH = /Workspace/Users/gurralasushmareddy@gmail.com
+        
+          EOF
+
+      # 5. Set repo path based on environment
+      - name: Set Repo Path
+        id: repo-path
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "prod" ]; then
+            echo "REPO_PATH=/Repos/prod/spark_job.py" >> $GITHUB_ENV
+          else
+            echo "REPO_PATH=/Repos/dev/spark_job.py" >> $GITHUB_ENV
+          fi
+
+      # 6. Run PySpark job on Databricks
+      - name: Execute Databricks Job
+        run: |
+          databricks jobs run-now --job-id <YOUR_JOB_ID> \
+            --notebook-params "{\"repo_path\": \"${REPO_PATH}\"}"
