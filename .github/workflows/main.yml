@@ -21,9 +21,11 @@ jobs:
       # 3. Deploy bundle to test environment
       - run: databricks bundle deploy
          working_directory:main
-           DATABRICKS_HOST= ${{ secrets.DEV-DEPLOYMENT-TARGET-URL}} >> $GITHUB_ENV
-          DATABRICKS_TOKEN= ${{ secrets.dev-token}}>> $GITHUB_ENV
+           DATABRICKS_HOST= ${{ secrets.DEV_DEPLOYMENT_TARGET_URL}} >> $GITHUB_ENV
+          DATABRICKS_TOKEN= ${{ secrets.Dev_token}}>> $GITHUB_ENV
           WORKSPACE_NOTEBOOK_PATH= "/Workspace/Repos/gurralasushmareddy@gmail.com/CICD-DATABRICKS-PROJECT"
+
+          
 
           
           
