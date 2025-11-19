@@ -18,24 +18,22 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@v1
 
-      # 3. Authenticate with Databricks
-      - name: Configure Databricks Authentication
-        run: |
-          echo "DATABRICKS_HOST=${{ secrets.DEV-DEPLOYMENT-TARGET-URL }}" >> $GITHUB_ENV
-          echo "DATABRICKS_TOKEN=${{ secrets.dev-toknen}}" >> $GITHUB_ENV
-
-      # 4. Deploy Notebook to Databricks Workspace
-      - name: Deploy Notebook
-        run: |
-          # Path to your local notebook
-          LOCAL_NOTEBOOK_PATH="/Workspace/Users/gurralasushmareddy@gmail.com"
-          # Path in Databricks workspace
+      # 3. Deploy bundle to test environment
+      - run: databricks bundle deploy
+         working_directory:main
+           DATABRICKS_HOST=${{ secrets.DEV-DEPLOYMENT-TARGET-URL}} >> $GITHUB_ENV
+          DATABRICKS_TOKEN=${{ secrets.dev-toknen}}>> $GITHUB_ENV
           WORKSPACE_NOTEBOOK_PATH="/Workspace/Repos/gurralasushmareddy@gmail.com/CICD-DATABRICKS-PROJECT"
 
-          # Upload notebook to Databricks workspace
-          databricks workspace import \
+         
+         databricks workspace import \
             --format SOURCE \
             --language PYTHON \
             --overwrite \
             $LOCAL_NOTEBOOK_PATH $WORKSPACE_NOTEBOOK_PATH
+
+      # 5. (Optional) Trigger Databricks Job after deployment
+      - name: Trigger Databricks Job
+        run: |
+
 
