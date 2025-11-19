@@ -39,8 +39,3 @@ jobs:
             --overwrite \
             $LOCAL_NOTEBOOK_PATH $WORKSPACE_NOTEBOOK_PATH
 
-      # 5. (Optional) Trigger Databricks Job after deployment
-      - name: Trigger Databricks Job
-        run: |
-          JOB_ID="12345" # Replace with your Databricks Job ID
-          databricks jobs run-now --job-id $JOB_ID
