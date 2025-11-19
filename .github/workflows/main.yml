@@ -1,55 +1,46 @@
-name: Run PySpark Job on Databricks
+name: Deploy Databricks Notebook
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Choose environment (dev or prod)"
-        required: true
-        default: "dev"
+  push:
+    branches:
+      - main   # Trigger when code is merged to main
 
 jobs:
-  databricks-job:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
+      # 1. Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      # 3. Install Databricks CLI
+      # 2. Set up Databricks CLI
       - name: Install Databricks CLI
-        run: |
-          pip install databricks-cli
+        uses: databricks/setup-cli@v1
 
-      # 4. Configure Databricks CLI
-      - name: Configure Databricks CLI
+      # 3. Authenticate with Databricks
+      - name: Configure Databricks Authentication
         run: |
-          databricks configure --token <<EOF
-          ${{ secrets.DATABRICKS_HOST }}
-          ${{ secrets.DATABRICKS_TOKEN }}
-          REPO_PATH = /Workspace/Users/gurralasushmareddy@gmail.com
-        
-          EOF
+          echo "DATABRICKS_HOST=${{ secrets.DEV_DEPLOYMENT_TARGET_URL }}" >> $GITHUB_ENV
+          echo "DATABRICKS_TOKEN=${{ secrets.DEV_DEPLOYMENT_TARGET_TOKEN}}" >> $GITHUB_ENV
 
-      # 5. Set repo path based on environment
-      - name: Set Repo Path
-        id: repo-path
+      # 4. Deploy Notebook to Databricks Workspace
+      - name: Deploy Notebook
         run: |
-          if [ "${{ github.event.inputs.environment }}" = "prod" ]; then
-            echo "REPO_PATH=/Repos/prod/spark_job.py" >> $GITHUB_ENV
-          else
-            echo "REPO_PATH=/Repos/dev/spark_job.py" >> $GITHUB_ENV
-          fi
+          # Path to your local notebook
+          LOCAL_NOTEBOOK_PATH="/Workspace/Users/gurralasushmareddy@gmail.com"
+          # Path in Databricks workspace
+          WORKSPACE_NOTEBOOK_PATH="/Workspace/Repos/gurralasushmareddy@gmail.com/CICD-DATABRICKS-PROJECT"
 
-      # 6. Run PySpark job on Databricks
-      - name: Execute Databricks Job
+          # Upload notebook to Databricks workspace
+          databricks workspace import \
+            --format SOURCE \
+            --language PYTHON \
+            --overwrite \
+            $LOCAL_NOTEBOOK_PATH $WORKSPACE_NOTEBOOK_PATH
+
+      # 5. (Optional) Trigger Databricks Job after deployment
+      - name: Trigger Databricks Job
         run: |
-          databricks jobs run-now --job-id <YOUR_JOB_ID> \
-            --notebook-params "{\"repo_path\": \"${REPO_PATH}\"}"
+          JOB_ID="12345" # Replace with your Databricks Job ID
+          databricks jobs run-now --job-id $JOB_ID
