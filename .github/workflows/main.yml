@@ -25,21 +25,21 @@ jobs:
           DATABRICKS_TOKEN= ${{ secrets.dev-token}}>> $GITHUB_ENV
           WORKSPACE_NOTEBOOK_PATH= "/Workspace/Repos/gurralasushmareddy@gmail.com/CICD-DATABRICKS-PROJECT"
 
-           run_pipeline:
-           name: "Run Databricks job After deployment"
-           runs-on:  ubuntu-latest
-           needs: deploy_to_prod
+          
+          
+  run_pipeline:   # ✅ Job name without spaces or special chars
+    name: Run Databricks Job After Deployment
+    runs-on: ubuntu-latest
+    needs: deploy_to_prod 
+    
+steps:
+      - name: Trigger Databricks Job
+        run: |
 
-           steps:
-             - uses: actiona/checkout@v3
-             -uses: databricks/setup-cli@main
-             #4.Run the databricks job defined in the bundle
-              run: databricks bundle deploy run my-job-refresh-all
-           working_directory:prod
-           DATABRICKS_HOST= ${{ secrets.prod-DEPLOYMENT-TARGET-URL}} >> $GITHUB_ENV
-          DATABRICKS_TOKEN= ${{ secrets.prod-token}}>> $GITHUB_ENV
-          WORKSPACE_NOTEBOOK_PATH= "/Workspace/Repos/gurralasushmareddy@gmail.com/CICD-DATABRICKS-PROJECT"
 
+
+          
+            
              
 
 
