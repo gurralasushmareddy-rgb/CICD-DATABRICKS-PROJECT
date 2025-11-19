@@ -27,15 +27,8 @@ jobs:
 
           
           
-  run_pipeline:   # ✅ Job name without spaces or special chars
-    name: Run Databricks Job After Deployment
-    runs-on: ubuntu-latest
-    needs: deploy_to_prod 
-    
-steps:
-      - name: Trigger Databricks Job
-        run: |
-
+  
+  
 
 
           
